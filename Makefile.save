@@ -4,6 +4,7 @@ OBJS = \
 	exec.o\
 	file.o\
 	fs.o\
+	hello.c\
 	ide.o\
 	ioapic.o\
 	kalloc.o\
@@ -170,7 +171,6 @@ UPROGS=\
 	_echo\
 	_forktest\
 	_grep\
-	_hello\
 	_init\
 	_kill\
 	_ln\
