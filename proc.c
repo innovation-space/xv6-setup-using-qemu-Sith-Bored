@@ -88,7 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-
+  p->trace_on =0;
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -199,6 +199,7 @@ fork(void)
   np->sz = curproc->sz;
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  np->trace_on = curproc->trace_on;
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;

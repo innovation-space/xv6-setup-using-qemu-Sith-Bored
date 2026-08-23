@@ -89,3 +89,15 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+int
+sys_trace(void)
+{
+  int on;
+  // Fetch the integer argument passed to the system call
+  if(argint(0, &on) < 0)
+    return -1;
+
+  // Set the trace flag for the current process
+  myproc()->trace_on = on;
+  return 0;
+}
