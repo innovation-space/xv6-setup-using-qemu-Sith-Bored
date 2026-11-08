@@ -89,15 +89,46 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
 int
 sys_trace(void)
 {
   int on;
-  // Fetch the integer argument passed to the system call
+
+  // Fetch the integer argument passed by the user
   if(argint(0, &on) < 0)
     return -1;
 
-  // Set the trace flag for the current process
+  // Enable or disable tracing
   myproc()->trace_on = on;
+
   return 0;
 }
+
+int
+sys_vmmap(void)
+{
+  int va;
+  uint pa, flags;
+  struct proc *p = myproc();
+
+  if(argint(0, &va) < 0 || va < 0)
+    return -1;
+
+  if((uint)va >= p->sz)
+    return -1;
+
+  if(vmmapinfo(p->pgdir, (uint)va, &pa, &flags) < 0)
+    return -1;
+
+  cprintf("VA=0x%x Page=0x%x PA=0x%x\n",
+          (uint)va, PGROUNDDOWN((uint)va), pa);
+
+  cprintf("P=%d W=%d U=%d\n",
+          !!(flags & PTE_P),
+          !!(flags & PTE_W),
+          !!(flags & PTE_U));
+
+  return 0;
+}
+

@@ -17,6 +17,8 @@ static struct proc *initproc;
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
+int shared_counter = 0;
+struct spinlock counter_lock;
 
 static void wakeup1(void *chan);
 
@@ -24,6 +26,7 @@ void
 pinit(void)
 {
   initlock(&ptable.lock, "ptable");
+  initlock(&counter_lock, "counter");
 }
 
 // Must be called with interrupts disabled
@@ -329,6 +332,13 @@ scheduler(void)
   
   for(;;){
     // Enable interrupts on this processor.
+    acquire(&counter_lock);
+
+    int temp = shared_counter;
+    for(volatile int i = 0; i < 1000; i++);
+    shared_counter = temp + 1;
+
+    release(&counter_lock);
     sti();
 
     // Loop over process table looking for process to run.

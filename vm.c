@@ -54,6 +54,23 @@ walkpgdir(pde_t *pgdir, const void *va, int alloc)
   return &pgtab[PTX(va)];
 }
 
+// Get physical address and flags for a user virtual address.
+int
+vmmapinfo(pde_t *pgdir, uint va, uint *pa, uint *flags)
+{
+  pte_t *pte;
+
+  pte = walkpgdir(pgdir, (char*)va, 0);
+
+  if(pte == 0 || !(*pte & PTE_P) || !(*pte & PTE_U))
+    return -1;
+
+  *pa = PTE_ADDR(*pte) + (va & (PGSIZE - 1));
+  *flags = PTE_FLAGS(*pte);
+
+  return 0;
+}
+
 // Create PTEs for virtual addresses starting at va that refer to
 // physical addresses starting at pa. va and size might not
 // be page-aligned.
