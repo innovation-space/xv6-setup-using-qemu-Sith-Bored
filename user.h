@@ -1,5 +1,6 @@
 struct stat;
 struct rtcdate;
+struct procinfo;
 
 // system calls
 int fork(void);
@@ -25,7 +26,7 @@ int sleep(int);
 int uptime(void);
 int trace(int);
 int vmmap(uint);
-
+int getprocs(struct procinfo*, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

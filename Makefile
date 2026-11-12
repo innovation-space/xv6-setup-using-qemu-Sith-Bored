@@ -176,6 +176,8 @@ UPROGS=\
 	_ln\
 	_ls\
 	_stat\
+	_ps\
+	_pstest\
 	_mkdir\
 	_rm\
 	_sh\

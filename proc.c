@@ -1,3 +1,4 @@
+#include "procinfo.h"
 #include "types.h"
 #include "defs.h"
 #include "param.h"
@@ -542,4 +543,50 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+// Return process information to a user-space buffer.
+int
+getprocs(uint dstva, int max)
+{
+  struct proc *p;
+  struct procinfo info;
+  int count = 0;
+
+  static char *states[] = {
+    [UNUSED]   "unused",
+    [EMBRYO]   "embryo",
+    [SLEEPING] "sleeping",
+    [RUNNABLE] "runnable",
+    [RUNNING]  "running",
+    [ZOMBIE]   "zombie"
+  };
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC] && count < max; p++){
+
+    if(p->state == UNUSED)
+      continue;
+
+    info.pid = p->pid;
+    info.ppid = (p->parent != 0) ? p->parent->pid : 0;
+
+    safestrcpy(info.state, states[p->state],
+               PROC_STATE_LEN);
+
+    safestrcpy(info.name, p->name, PROC_NAME_LEN);
+
+    if(copyout(myproc()->pgdir,
+               dstva + count * sizeof(info),
+               (char*)&info, sizeof(info)) < 0){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    count++;
+  }
+
+  release(&ptable.lock);
+
+  return count;
 }

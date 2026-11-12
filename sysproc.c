@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "procinfo.h"
 
 int
 sys_fork(void)
@@ -132,3 +133,23 @@ sys_vmmap(void)
   return 0;
 }
 
+int
+sys_getprocs(void)
+{
+  int max;
+  char *buf;
+
+  if(argint(1, &max) < 0)
+    return -1;
+
+  if(max < 0 || max > NPROC)
+    return -1;
+
+  if(max == 0)
+    return 0;
+
+  if(argptr(0, &buf, max * sizeof(struct procinfo)) < 0)
+    return -1;
+
+  return getprocs((uint)buf, max);
+}
